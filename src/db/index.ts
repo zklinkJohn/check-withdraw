@@ -4,7 +4,7 @@ export const db = new sqlite3.Database("./src/db/withdraw.db");
 db.run(`
   CREATE TABLE IF NOT EXISTS 
       withdraw (
-          id SERIAL PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           block_number INTEGER NOT NULL,
           tx_hash TEXT NOT NULL, 
           chain_id INTEGER, 
@@ -40,7 +40,7 @@ export function insertFiledWithdrawTx({
     `
     INSERT INTO withdraw 
     (block_number,tx_hash,chain_id,pending_balance,token_id,token_address,decimals,receipter)
-    VALUES (?,?,?,?,?,?,?)
+    VALUES (?,?,?,?,?,?,?,?)
   `,
     [
       blockNumber,

@@ -58,7 +58,7 @@ async function startLoop() {
         ZKLINK_ABI,
         provider
       );
-      const pendingBalance = await contract.getPendingBalance(
+      const pendingBalance: bigint = await contract.getPendingBalance(
         extendAddress(transaction.tx.to),
         toBeHex(transaction.tx.l1TargetToken)
       );
@@ -79,7 +79,7 @@ async function startLoop() {
           blockNumber: latestBlockNumber,
           txHash: transaction.txHash,
           chainId: chainInfo.chainId,
-          pendingBalance: pendingBalance,
+          pendingBalance: pendingBalance.toString(),
           tokenId: tokenInfo.tokenId,
           tokenAddress: tokenInfo.address,
           decimals: tokenInfo.decimals,
