@@ -35,13 +35,22 @@ export function insertFiledWithdrawTx({
   tokenAddress,
   decimals,
   receipter,
-}: FailedWithdrawInfo) {
-  db.run(
+}: FailedWithdrawInfo): Promise<any> {
+  return db.run(
     `
     INSERT INTO withdraw 
     (block_number,tx_hash,chain_id,pending_balance,token_id,token_address,decimals,receipter)
     VALUES (?,?,?,?,?,?,?)
   `,
-    [blockNumber, txHash, chainId, pendingBalance, tokenId, decimals, receipter]
+    [
+      blockNumber,
+      txHash,
+      chainId,
+      pendingBalance,
+      tokenId,
+      tokenAddress,
+      decimals,
+      receipter,
+    ]
   );
 }
