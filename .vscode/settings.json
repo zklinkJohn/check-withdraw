@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "withdraw",
+      "database": "${workspaceFolder:check-withdraw}/src/db/withdraw.db"
+    }
+  ],
+  "sqltools.useNodeRuntime": true
+}

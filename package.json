@@ -1,0 +1,28 @@
+{
+  "name": "check-withdraw",
+  "version": "1.0.0",
+  "description": "double check whether withdrawal is successful executed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zklinkJohn/check-withdraw.git"
+  },
+  "keywords": [],
+  "author": "John",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zklinkJohn/check-withdraw/issues"
+  },
+  "homepage": "https://github.com/zklinkJohn/check-withdraw#readme",
+  "dependencies": {
+    "@ethersproject/bytes": "^5.7.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1",
+    "jayson": "^4.1.0",
+    "log4js": "^6.9.1",
+    "sqlite3": "^5.1.6"
+  }
+}
