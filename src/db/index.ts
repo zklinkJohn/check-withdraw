@@ -9,6 +9,7 @@ db.run(`
           tx_hash TEXT NOT NULL, 
           chain_id INTEGER, 
           pending_balance TEXT,
+          pending_balance_amount TEXT,
           token_id INTEGER NOT NULL,
           token_address TEXT NOT NULL,
           decimals INTEGER NOT NULL,
@@ -21,6 +22,7 @@ export interface FailedWithdrawInfo {
   txHash: string;
   chainId: number;
   pendingBalance: string;
+  pendingBalanceAmount: string;
   tokenId: number;
   tokenAddress: string;
   decimals: number;
@@ -31,6 +33,7 @@ export function insertFiledWithdrawTx({
   txHash,
   chainId,
   pendingBalance,
+  pendingBalanceAmount,
   tokenId,
   tokenAddress,
   decimals,
@@ -39,14 +42,15 @@ export function insertFiledWithdrawTx({
   return db.run(
     `
     INSERT INTO withdraw 
-    (block_number,tx_hash,chain_id,pending_balance,token_id,token_address,decimals,receipter)
-    VALUES (?,?,?,?,?,?,?,?)
+    (block_number,tx_hash,chain_id,pending_balance,pending_balance_amount,token_id,token_address,decimals,receipter)
+    VALUES (?,?,?,?,?,?,?,?,?)
   `,
     [
       blockNumber,
       txHash,
       chainId,
       pendingBalance,
+      pendingBalanceAmount,
       tokenId,
       tokenAddress,
       decimals,

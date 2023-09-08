@@ -4,12 +4,14 @@ import {
   getBlockByNumber,
   getSupportChains,
   getSupportTokens,
+  getLatestBlockNumber,
 } from "./api";
 import { sleep, extendAddress } from "./utils/helper";
 import logger from "./logger";
 import { ethers, Contract, toBeHex, FallbackProvider } from "ethers";
 import { insertFiledWithdrawTx, FailedWithdrawInfo } from "./db";
 import ZKLINK_ABI from "./abi/zklink.abi.json";
+import { custormChainRPC } from "./conf";
 
 interface TokenAndChainInfo {
   tokenId: number;
@@ -18,11 +20,14 @@ interface TokenAndChainInfo {
   decimals: number;
 }
 
-let latestBlockNumber = 18110;
+let latestBlockNumber = 4155; // 上次跑的区块
 const supportChainsMap: { [chainId: string]: ChainInfo } = {};
 const tokens: TokenAndChainInfo[] = [];
+let latestVerifyedBlockNumber: number;
 
 async function start() {
+  latestVerifyedBlockNumber = (await getLatestBlockNumber()).verified;
+  logger.info(`latestVerifyedBlockNumber: ${latestVerifyedBlockNumber}`);
   const supportChains = await getSupportChains();
   for (const supportChain of supportChains) {
     supportChainsMap[supportChain.chainId] = supportChain;
@@ -45,23 +50,44 @@ async function start() {
   // start loop
   startLoop();
 }
-
+let pendingBalance: bigint;
 async function startLoop() {
+  if (latestBlockNumber >= latestVerifyedBlockNumber) {
+    return;
+  }
+  console.log(`latestBlockNumber: ${latestBlockNumber}`);
   const blockInfo = await getBlockByNumber(latestBlockNumber);
   const transactions = blockInfo.transactions;
+
   for (const transaction of transactions) {
     if (transaction.tx.type === "Withdraw") {
+      // logger.info(
+      //   `withdraw transaction: ${JSON.stringify(transaction, null, 2)}`
+      // );
       const chainInfo = supportChainsMap[transaction.tx.toChainId];
+      if (custormChainRPC[chainInfo.chainId] !== undefined) {
+        chainInfo.web3Url = custormChainRPC[chainInfo.chainId]!;
+      }
       const provider = new ethers.JsonRpcProvider(chainInfo.web3Url);
       const contract = new Contract(
         chainInfo.mainContract,
         ZKLINK_ABI,
         provider
       );
-      const pendingBalance: bigint = await contract.getPendingBalance(
-        extendAddress(transaction.tx.to),
-        toBeHex(transaction.tx.l1TargetToken)
-      );
+
+      try {
+        pendingBalance = await contract.getPendingBalance(
+          extendAddress(transaction.tx.to),
+          toBeHex(transaction.tx.l1TargetToken)
+        );
+      } catch (error) {
+        logger.error(
+          `blockNumber: ${latestBlockNumber} chainId: ${chainInfo.chainId} RPC: ${chainInfo.web3Url}`
+        );
+        startLoop();
+      } finally {
+        await sleep(500);
+      }
 
       // get token decimals
       const filterTokens = tokens.filter(
@@ -71,33 +97,31 @@ async function startLoop() {
       );
       if (filterTokens.length > 0) {
         const tokenInfo = filterTokens[0];
-        // if (
-        //   BigInt(pendingBalance) / BigInt(10) ** BigInt(tokenInfo.decimals) >
-        //   0
-        // ) {
+        const decimals =
+          tokenInfo.decimals === 18 ? 0 : 18 - tokenInfo.decimals;
+        const amount = BigInt(pendingBalance) / BigInt(10) ** BigInt(decimals);
         const filedWithdrawInfo: FailedWithdrawInfo = {
           blockNumber: latestBlockNumber,
           txHash: transaction.txHash,
           chainId: chainInfo.chainId,
           pendingBalance: pendingBalance.toString(),
+          pendingBalanceAmount: amount.toString(),
           tokenId: tokenInfo.tokenId,
           tokenAddress: tokenInfo.address,
           decimals: tokenInfo.decimals,
           receipter: transaction.tx.to,
         };
-        console.log({ filedWithdrawInfo });
         await insertFiledWithdrawTx(filedWithdrawInfo);
-        logger.error(`pending balance not withdraw`);
-        // }
       }
-      logger.info(`pending Balance: ${pendingBalance}`);
+      // logger.info(`pending Balance: ${pendingBalance}`);
+      await sleep(1000);
     }
   }
 
-  await sleep(1000);
+  await sleep(1500);
   latestBlockNumber++;
-  logger.info(`latest block number: ${latestBlockNumber}`);
-  //   startLoop();
+  // logger.info(`latest block number: ${latestBlockNumber}`);
+  startLoop();
 }
 
 start();

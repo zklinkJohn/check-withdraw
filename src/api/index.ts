@@ -51,6 +51,13 @@ export interface SupportTokens {
   [tokenId: string]: TokenInfo;
 }
 
+export interface LatestBlockNumberInfo {
+  lastBlockNumber: number;
+  timestamp: number;
+  committed: number;
+  verified: number;
+}
+
 export function getBlockByNumber(blockNumber: number): Promise<BlockInfo> {
   return zklinkRpcClient
     .request("getBlockByNumber", [blockNumber, true, false])
@@ -66,5 +73,11 @@ export function getSupportChains(): Promise<ChainInfo[]> {
 export function getSupportTokens(): Promise<SupportTokens> {
   return zklinkRpcClient
     .request("getSupportTokens", [])
+    .then((res) => res.result);
+}
+
+export function getLatestBlockNumber(): Promise<LatestBlockNumberInfo> {
+  return zklinkRpcClient
+    .request("getLatestBlockNumber", [])
     .then((res) => res.result);
 }
