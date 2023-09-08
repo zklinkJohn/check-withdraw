@@ -20,7 +20,7 @@ interface TokenAndChainInfo {
   decimals: number;
 }
 
-let latestBlockNumber = 4155; // 上次跑的区块
+let latestBlockNumber = 3958; // 上次跑的区块
 const supportChainsMap: { [chainId: string]: ChainInfo } = {};
 const tokens: TokenAndChainInfo[] = [];
 let latestVerifyedBlockNumber: number;
@@ -50,7 +50,7 @@ async function start() {
   // start loop
   startLoop();
 }
-let pendingBalance: bigint;
+
 async function startLoop() {
   if (latestBlockNumber >= latestVerifyedBlockNumber) {
     return;
@@ -75,6 +75,7 @@ async function startLoop() {
         provider
       );
 
+      let pendingBalance;
       try {
         pendingBalance = await contract.getPendingBalance(
           extendAddress(transaction.tx.to),
@@ -84,9 +85,9 @@ async function startLoop() {
         logger.error(
           `blockNumber: ${latestBlockNumber} chainId: ${chainInfo.chainId} RPC: ${chainInfo.web3Url}`
         );
-        startLoop();
-      } finally {
         await sleep(500);
+        startLoop();
+        return;
       }
 
       // get token decimals
