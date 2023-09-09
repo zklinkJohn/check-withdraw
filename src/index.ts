@@ -20,7 +20,7 @@ interface TokenAndChainInfo {
   decimals: number;
 }
 
-let latestBlockNumber = 4097; // 上次跑的区块
+let latestBlockNumber = 1; // 上次跑的区块
 const supportChainsMap: { [chainId: string]: ChainInfo } = {};
 const tokens: TokenAndChainInfo[] = [];
 let latestVerifyedBlockNumber: number;

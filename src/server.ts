@@ -9,7 +9,8 @@ app.use(cors());
 app.get("/query/withdraw", async (req, res) => {
   const sql = req.query.sql as string;
   const params = req.query.params as any[];
-  console.log(`sql: ${sql}`);
+  console.log("sql:", sql);
+  console.log("params: ", params);
   try {
     const data = await selectDB(sql, params || []);
     res.send({
