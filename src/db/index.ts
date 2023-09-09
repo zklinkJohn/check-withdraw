@@ -58,3 +58,15 @@ export function insertFiledWithdrawTx({
     ]
   );
 }
+
+export async function selectDB(sql: string, params: any[]): Promise<any> {
+  return new Promise((resolve, reject) => {
+    db.all(sql, [], (error: any, resdata: any) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(resdata);
+      }
+    });
+  });
+}

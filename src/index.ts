@@ -20,7 +20,7 @@ interface TokenAndChainInfo {
   decimals: number;
 }
 
-let latestBlockNumber = 3958; // 上次跑的区块
+let latestBlockNumber = 4097; // 上次跑的区块
 const supportChainsMap: { [chainId: string]: ChainInfo } = {};
 const tokens: TokenAndChainInfo[] = [];
 let latestVerifyedBlockNumber: number;
@@ -115,11 +115,11 @@ async function startLoop() {
         await insertFiledWithdrawTx(filedWithdrawInfo);
       }
       // logger.info(`pending Balance: ${pendingBalance}`);
-      await sleep(1000);
+      // await sleep(1000);
     }
   }
 
-  await sleep(1500);
+  // await sleep(1500);
   latestBlockNumber++;
   // logger.info(`latest block number: ${latestBlockNumber}`);
   startLoop();
